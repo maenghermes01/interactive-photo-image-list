@@ -52,6 +52,13 @@ export function ArcCarousel() {
       role="region"
       tabIndex={0}
     >
+      <div
+        aria-hidden="true"
+        className="active-album-backdrop"
+        data-testid="active-album-backdrop"
+        style={{ background: activeItem.imageUrl, opacity: 0.36 }}
+      />
+
       <div className="active-meta" aria-live="polite">
         <span>{activeItem.artist}</span>
         <strong>{activeItem.country}</strong>

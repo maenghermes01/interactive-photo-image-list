@@ -73,6 +73,28 @@ button { font: inherit; }
 
 .arc-carousel.is-dragging { cursor: grabbing; }
 
+.active-album-backdrop {
+  position: absolute;
+  inset: -8vh -8vw;
+  z-index: 1;
+  opacity: .36;
+  background-size: cover !important;
+  background-position: center !important;
+  filter: blur(22px) saturate(1.18);
+  transform: scale(1.04);
+  transition: background 620ms ease, opacity 420ms ease, filter 420ms ease;
+  pointer-events: none;
+}
+
+.active-album-backdrop::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(245,245,242,.52) 0%, rgba(245,245,242,.24) 48%, rgba(245,245,242,.68) 100%),
+    radial-gradient(circle at 50% 78%, rgba(245,245,242,.08), rgba(245,245,242,.52) 58%);
+}
+
 .active-meta {
   position: absolute;
   left: 50%;

@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import App from './App'
+import { albums } from './data/albums'
 
 describe('Circle Album app', () => {
   it('renders a circular album gallery with album cards', () => {
@@ -10,6 +11,15 @@ describe('Circle Album app', () => {
     expect(screen.getByRole('main', { name: /circle album/i })).toBeInTheDocument()
     expect(screen.getByRole('region', { name: /interactive circular image carousel/i })).toBeInTheDocument()
     expect(screen.getAllByRole('button', { name: /view/i }).length).toBeGreaterThan(5)
+  })
+
+  it('renders a translucent full-screen backdrop from the active album image', () => {
+    render(<App />)
+
+    const backdrop = screen.getByTestId('active-album-backdrop')
+    expect(backdrop).toHaveAttribute('aria-hidden', 'true')
+    expect(backdrop).toHaveStyle({ background: albums[3].imageUrl })
+    expect(backdrop).toHaveStyle({ opacity: '0.36' })
   })
 
   it('moves active card with keyboard arrows and opens details with enter', async () => {
