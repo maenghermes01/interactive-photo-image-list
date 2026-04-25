@@ -5,12 +5,15 @@ import App from './App'
 import { albums } from './data/albums'
 
 describe('Circle Album app', () => {
-  it('renders a circular album gallery with album cards', () => {
+  it('renders a circular album gallery with real test image cards', () => {
     render(<App />)
 
     expect(screen.getByRole('main', { name: /circle album/i })).toBeInTheDocument()
     expect(screen.getByRole('region', { name: /interactive circular image carousel/i })).toBeInTheDocument()
-    expect(screen.getAllByRole('button', { name: /view/i }).length).toBeGreaterThan(5)
+    expect(screen.getAllByRole('button', { name: /view/i })).toHaveLength(30)
+    expect(albums).toHaveLength(30)
+    expect(albums[0].imageUrl).toContain('real-test-image')
+    expect(albums[0].imageUrl).toContain('.jpeg')
   })
 
   it('renders a translucent full-screen backdrop from the active album image', () => {
@@ -18,7 +21,8 @@ describe('Circle Album app', () => {
 
     const backdrop = screen.getByTestId('active-album-backdrop')
     expect(backdrop).toHaveAttribute('aria-hidden', 'true')
-    expect(backdrop).toHaveStyle({ background: albums[3].imageUrl })
+    expect(backdrop.getAttribute('style')).toContain('real-test-image')
+    expect(backdrop.getAttribute('style')).toContain('.jpeg')
     expect(backdrop).toHaveStyle({ opacity: '0.36' })
   })
 

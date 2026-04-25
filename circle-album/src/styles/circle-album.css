@@ -134,6 +134,9 @@ button { font: inherit; }
   transition: transform 620ms cubic-bezier(.2,.8,.2,1), opacity 420ms ease, box-shadow 420ms ease;
   transform-origin: center center;
   will-change: transform, opacity;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
 }
 
 .album-card[aria-current="true"] {
@@ -148,8 +151,10 @@ button { font: inherit; }
 .album-card__shine {
   position: absolute;
   inset: 0;
-  background: linear-gradient(125deg, rgba(255,255,255,.22), transparent 36%, rgba(255,255,255,.1));
-  mix-blend-mode: screen;
+  background:
+    linear-gradient(180deg, transparent 0%, rgba(0,0,0,.08) 42%, rgba(0,0,0,.72) 100%),
+    linear-gradient(125deg, rgba(255,255,255,.18), transparent 36%, rgba(255,255,255,.08));
+  mix-blend-mode: normal;
 }
 
 .album-card__content {
@@ -157,7 +162,9 @@ button { font: inherit; }
   inset: auto 16px 16px;
   display: grid;
   gap: 4px;
+  padding: 56px 0 0;
   text-align: left;
+  text-shadow: 0 2px 14px rgba(0,0,0,.58);
 }
 
 .album-card__eyebrow {
@@ -289,6 +296,8 @@ button { font: inherit; }
 .detail-modal__preview {
   min-height: 270px;
   border-radius: 10px;
+  background-size: cover !important;
+  background-position: center !important;
 }
 
 .detail-modal__copy p:first-child {
