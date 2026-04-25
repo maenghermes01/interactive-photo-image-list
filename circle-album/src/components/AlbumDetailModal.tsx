@@ -10,7 +10,8 @@ export function AlbumDetailModal({ item, onClose }: AlbumDetailModalProps) {
     <div className="detail-backdrop" role="presentation" onClick={onClose}>
       <section
         aria-modal="true"
-        className="detail-modal"
+        className="detail-modal detail-modal--post-size"
+        data-layout="immersive-post"
         role="dialog"
         aria-labelledby="detail-title"
         onClick={(event) => event.stopPropagation()}

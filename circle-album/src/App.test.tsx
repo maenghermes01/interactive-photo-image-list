@@ -38,4 +38,17 @@ describe('Circle Album app', () => {
     expect(screen.getByRole('dialog')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /close/i })).toBeInTheDocument()
   })
+
+  it('opens details in a large responsive post-style modal', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    const carousel = screen.getByRole('region', { name: /interactive circular image carousel/i })
+    carousel.focus()
+    await user.keyboard('{Enter}')
+
+    const dialog = screen.getByRole('dialog')
+    expect(dialog).toHaveAttribute('data-layout', 'immersive-post')
+    expect(dialog).toHaveClass('detail-modal--post-size')
+  })
 })
