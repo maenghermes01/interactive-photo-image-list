@@ -115,6 +115,20 @@ describe('Wedding Album invitation', () => {
     expect(screen.getByRole('group', { name: 'Archive 004' })).toHaveAttribute('aria-current', 'true')
   })
 
+  it('keeps vertical touch swipes available for page scrolling inside the gallery', () => {
+    render(<App />)
+
+    const carousel = screen.getByRole('region', { name: /horizontal image carousel/i })
+    expect(screen.getByRole('group', { name: 'Archive 004' })).toHaveAttribute('aria-current', 'true')
+
+    fireEvent.pointerDown(carousel, { pointerId: 1, clientX: 180, clientY: 420 })
+    fireEvent.pointerMove(carousel, { pointerId: 1, clientX: 184, clientY: 300 })
+    fireEvent.pointerUp(carousel, { pointerId: 1, clientX: 184, clientY: 300 })
+
+    expect(screen.getByRole('group', { name: 'Archive 004' })).toHaveAttribute('aria-current', 'true')
+    expect(carousel).not.toHaveClass('is-dragging')
+  })
+
   it('opens an attendance modal from the share button and lets guests choose attendance', async () => {
     const user = userEvent.setup()
     render(<App />)

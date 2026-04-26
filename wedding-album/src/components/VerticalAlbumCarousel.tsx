@@ -19,6 +19,8 @@ type HeartParticle = {
   hdelay: string
 }
 
+type DragMode = 'pending' | 'horizontal' | null
+
 function wrapIndex(index: number, total: number): number {
   if (total <= 0) return 0
   return ((index % total) + total) % total
@@ -80,8 +82,11 @@ export function VerticalAlbumCarousel() {
   const [likes, setLikes] = useState<Record<string, number>>({})
   const [particles, setParticles] = useState<Record<string, HeartParticle[]>>({})
   const isDraggingRef = useRef(false)
+  const dragModeRef = useRef<DragMode>(null)
   const hasDragged = useRef(false)
   const dragStartX = useRef(0)
+  const dragStartY = useRef(0)
+  const pointerIdRef = useRef<number | null>(null)
   const lastX = useRef(0)
   const lastT = useRef(0)
   const velocity = useRef(0)
@@ -173,35 +178,72 @@ export function VerticalAlbumCarousel() {
   const onPointerDown = useCallback((event: React.PointerEvent) => {
     if (isDraggingRef.current) return
     isDraggingRef.current = true
+    dragModeRef.current = 'pending'
     hasDragged.current = false
-    setIsDragging(true)
     dragStartX.current = event.clientX
+    dragStartY.current = event.clientY
     lastX.current = event.clientX
     lastT.current = performance.now()
     velocity.current = 0
-    if (autoTimer.current) clearTimeout(autoTimer.current)
-    sectionRef.current?.setPointerCapture(event.pointerId)
+    pointerIdRef.current = event.pointerId
+  }, [])
+
+  const resetDrag = useCallback(() => {
+    const section = sectionRef.current
+    const pointerId = pointerIdRef.current
+    if (section && pointerId !== null && section.hasPointerCapture?.(pointerId)) {
+      section.releasePointerCapture(pointerId)
+    }
+    isDraggingRef.current = false
+    dragModeRef.current = null
+    pointerIdRef.current = null
+    setIsDragging(false)
+    setDragOffset(0)
   }, [])
 
   const onPointerMove = useCallback((event: React.PointerEvent<HTMLElement>) => {
     if (!isDraggingRef.current) return
+
+    const movementX = event.clientX - dragStartX.current
+    const movementY = event.clientY - dragStartY.current
+    const absX = Math.abs(movementX)
+    const absY = Math.abs(movementY)
+
+    if (dragModeRef.current === 'pending') {
+      if (absY > 8 && absY > absX * 1.15) {
+        resetDrag()
+        scheduleAutoAdvance()
+        return
+      }
+
+      if (absX <= 8 || absX <= absY * 1.15) return
+
+      dragModeRef.current = 'horizontal'
+      setIsDragging(true)
+      if (autoTimer.current) clearTimeout(autoTimer.current)
+      sectionRef.current?.setPointerCapture(event.pointerId)
+    }
+
+    if (dragModeRef.current !== 'horizontal') return
+
     const now = performance.now()
     const dt = now - lastT.current
     if (dt > 0) velocity.current = (event.clientX - lastX.current) / dt
     lastX.current = event.clientX
     lastT.current = now
-    const offset = event.clientX - dragStartX.current
-    if (Math.abs(offset) > 5) hasDragged.current = true
-    setDragOffset(offset)
-  }, [])
+    if (absX > 5) hasDragged.current = true
+    setDragOffset(movementX)
+  }, [resetDrag, scheduleAutoAdvance])
 
   const onPointerUp = useCallback(
     (event: React.PointerEvent<HTMLElement>) => {
       if (!isDraggingRef.current) return
-      isDraggingRef.current = false
-      setIsDragging(false)
-      setDragOffset(0)
-      event.currentTarget.releasePointerCapture(event.pointerId)
+
+      if (dragModeRef.current !== 'horizontal') {
+        resetDrag()
+        scheduleAutoAdvance()
+        return
+      }
 
       const movement = event.clientX - dragStartX.current
       const v = velocity.current
@@ -213,24 +255,23 @@ export function VerticalAlbumCarousel() {
       const didGoNext = (v < -VEL && movement < 0) || (Math.abs(v) <= VEL && movement < -DIST)
       const didGoPrev = (v > VEL && movement > 0) || (Math.abs(v) <= VEL && movement > DIST)
 
+      resetDrag()
+
       if (didGoNext) next()
       else if (didGoPrev) previous()
       else scheduleAutoAdvance()
 
       setTimeout(() => { hasDragged.current = false }, 0)
     },
-    [next, previous, scheduleAutoAdvance],
+    [next, previous, resetDrag, scheduleAutoAdvance],
   )
 
-  const onPointerCancel = useCallback((event: React.PointerEvent<HTMLElement>) => {
+  const onPointerCancel = useCallback(() => {
     if (!isDraggingRef.current) return
-    isDraggingRef.current = false
-    setIsDragging(false)
-    setDragOffset(0)
     hasDragged.current = false
-    event.currentTarget.releasePointerCapture(event.pointerId)
+    resetDrag()
     scheduleAutoAdvance()
-  }, [scheduleAutoAdvance])
+  }, [resetDrag, scheduleAutoAdvance])
 
   return (
     <section
