@@ -1,6 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { albums } from '../data/albums'
-import { wrapIndex } from '../lib/arcPosition'
 
 type VisiblePanel = {
   index: number
@@ -10,6 +9,11 @@ type VisiblePanel = {
   scale: number
   opacity: number
   zIndex: number
+}
+
+function wrapIndex(index: number, total: number): number {
+  if (total <= 0) return 0
+  return ((index % total) + total) % total
 }
 
 function shortestRelativeIndex(index: number, activeIndex: number, total: number): number {
