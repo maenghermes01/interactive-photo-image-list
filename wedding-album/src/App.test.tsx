@@ -104,6 +104,17 @@ describe('Wedding Album invitation', () => {
     expect(screen.getByTestId('floating-heart-Archive 004-3')).toHaveTextContent('♡')
   })
 
+  it('does not navigate gallery cards with mouse wheel input', () => {
+    render(<App />)
+
+    const carousel = screen.getByRole('region', { name: /horizontal image carousel/i })
+    expect(screen.getByRole('group', { name: 'Archive 004' })).toHaveAttribute('aria-current', 'true')
+
+    fireEvent.wheel(carousel, { deltaY: 120 })
+
+    expect(screen.getByRole('group', { name: 'Archive 004' })).toHaveAttribute('aria-current', 'true')
+  })
+
   it('opens an attendance modal from the share button and lets guests choose attendance', async () => {
     const user = userEvent.setup()
     render(<App />)

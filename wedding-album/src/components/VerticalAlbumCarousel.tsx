@@ -243,14 +243,6 @@ export function VerticalAlbumCarousel() {
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerCancel}
-      onWheel={(event) => {
-        if (isDraggingRef.current) return
-        event.preventDefault()
-        const delta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY
-        if (Math.abs(delta) < 8) return
-        if (delta > 0) next()
-        else previous()
-      }}
       onKeyDown={(event) => {
         if (event.key === 'ArrowRight') next()
         if (event.key === 'ArrowLeft') previous()
