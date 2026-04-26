@@ -1,23 +1,9 @@
 import { useRef, useState } from 'react'
 import heroGifUrl from '../../shared/gif/KakaoTalk_Photo_2026-04-26-11-15-04.gif?url'
 import weddingAudioUrl from '../../shared/audio/1251. Jelly Steps.mp3?url'
+import { VerticalAlbumCarousel } from './components/VerticalAlbumCarousel'
+import './styles/vertical-album.css'
 import './styles/wedding-album.css'
-
-type GalleryImage = {
-  id: string
-  src: string
-}
-
-const imageModules = import.meta.glob('../../shared/image/real-test-image/*.jpeg', {
-  eager: true,
-  query: '?url',
-  import: 'default',
-}) as Record<string, string>
-
-const galleryImages: GalleryImage[] = Object.entries(imageModules)
-  .sort(([a], [b]) => a.localeCompare(b, undefined, { numeric: true }))
-  .slice(0, 8)
-  .map(([path, src], index) => ({ id: `${path}-${index}`, src }))
 
 function AudioButton({ audioRef }: { audioRef: React.RefObject<HTMLAudioElement | null> }) {
   const [isPlaying, setIsPlaying] = useState(false)
@@ -94,10 +80,6 @@ export default function App() {
       <AudioButton audioRef={audioRef} />
 
       <section data-testid="wedding-section-1" className="wedding-section hero-section">
-        <div className="hero-meta">
-          <p>2026. 04. 26. 일요일 오전 11시 30분</p>
-          <p>비비드예식장 2F, 바우스홀</p>
-        </div>
         <div className="name-arc" aria-label="이윤종 그리고 이다영">이윤종 그리고 이다영</div>
         <img data-testid="hero-gif" className="hero-gif" src={heroGifUrl} alt="wedding opening animation" />
         <div className="hero-line" />
@@ -105,7 +87,10 @@ export default function App() {
 
       <section data-testid="wedding-section-2" className="wedding-section invitation-section">
         <div className="invitation-copy">
-          <p className="script-title">Invitation</p>
+          <div className="hero-meta">
+            <p>2026. 04. 26. 일요일 오전 11시 30분</p>
+            <p>비비드예식장 2F, 바우스홀</p>
+          </div>
           <h2>소중한 분들을 초대합니다</h2>
           <p>
             저희 두 사람의 작은 만남이<br />
@@ -155,11 +140,7 @@ export default function App() {
       </section>
 
       <section data-testid="wedding-section-4" className="wedding-section gallery-section">
-        <div className="gallery-track" aria-label="Wedding gallery">
-          {galleryImages.map((image, index) => (
-            <img key={image.id} src={image.src} alt={`wedding gallery ${index + 1}`} />
-          ))}
-        </div>
+        <VerticalAlbumCarousel />
       </section>
 
       <section data-testid="wedding-section-5" className="wedding-section closing-section">

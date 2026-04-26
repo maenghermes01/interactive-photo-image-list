@@ -83,7 +83,6 @@ button, a { font: inherit; }
   position: relative;
   width: min(82vw, 480px);
   padding-bottom: 18px;
-  border-bottom: 1px solid var(--line);
   text-align: center;
   color: #62605d;
   font-family: ui-sans-serif, system-ui, sans-serif;
@@ -271,22 +270,6 @@ button, a { font: inherit; }
 .map-actions a:last-child span { color: #f5c400; }
 
 .gallery-section { overflow: hidden; background: #eeeeec; }
-.gallery-track {
-  width: 118vw;
-  display: flex;
-  gap: clamp(14px, 2vw, 24px);
-  align-items: center;
-  justify-content: center;
-}
-.gallery-track img {
-  width: clamp(250px, 35vw, 490px);
-  height: clamp(430px, 76vh, 720px);
-  object-fit: cover;
-  border-radius: 28px;
-  box-shadow: 0 30px 90px rgba(70,70,70,.14);
-}
-.gallery-track img:not(:nth-child(4)) { opacity: .42; filter: saturate(.9); transform: scale(.92); }
-.gallery-track img:nth-child(n+6) { display: none; }
 
 .closing-section p:not(.script-title) {
   width: min(78vw, 420px);
@@ -337,8 +320,7 @@ button, a { font: inherit; }
   .invitation-copy { width: min(88vw, 430px); }
   .family-inline { bottom: 22px; }
   .map-card { height: 42vh; }
-  .gallery-track { width: 150vw; justify-content: flex-start; transform: translateX(4vw); }
-  .gallery-track img { width: 72vw; height: 66vh; }
+
 }
 
 @media (prefers-reduced-motion: reduce) {
