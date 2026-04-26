@@ -74,6 +74,34 @@ describe('Wedding Album invitation', () => {
     expect(screen.queryByTestId('floating-heart-Archive 004-1')).not.toBeInTheDocument()
   })
 
+  it('replays existing like hearts when a liked card becomes active again', () => {
+    vi.useFakeTimers()
+    render(<App />)
+
+    act(() => {
+      vi.advanceTimersByTime(200)
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Archive 004 좋아요 0개' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Archive 004 좋아요 1개' }))
+    expect(screen.getByRole('button', { name: 'Archive 004 좋아요 2개' })).toBeInTheDocument()
+
+    act(() => {
+      vi.advanceTimersByTime(4800)
+    })
+    expect(screen.queryByTestId('floating-heart-Archive 004-0')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('floating-heart-Archive 004-1')).not.toBeInTheDocument()
+
+    const carousel = screen.getByRole('region', { name: /horizontal image carousel/i })
+    fireEvent.keyDown(carousel, { key: 'ArrowRight' })
+    expect(screen.getByRole('group', { name: 'Archive 005' })).toHaveAttribute('aria-current', 'true')
+
+    fireEvent.keyDown(carousel, { key: 'ArrowLeft' })
+    expect(screen.getByRole('group', { name: 'Archive 004' })).toHaveAttribute('aria-current', 'true')
+    expect(screen.getByTestId('floating-heart-Archive 004-2')).toHaveTextContent('♡')
+    expect(screen.getByTestId('floating-heart-Archive 004-3')).toHaveTextContent('♡')
+  })
+
   it('opens an attendance modal from the share button and lets guests choose attendance', async () => {
     const user = userEvent.setup()
     render(<App />)

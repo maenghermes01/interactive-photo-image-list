@@ -88,6 +88,7 @@ export function VerticalAlbumCarousel() {
   const sectionRef = useRef<HTMLElement>(null)
   const autoTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const particleId = useRef(0)
+  const likesRef = useRef(likes)
   const activeItem = albums[activeIndex]
 
   const panels = useMemo(
@@ -104,25 +105,35 @@ export function VerticalAlbumCarousel() {
     autoTimer.current = setTimeout(() => next(), 5000)
   }, [next])
 
+  const releaseHeartParticles = useCallback((itemId: string, count: number) => {
+    if (count <= 0) return
+    const nextParticles = Array.from({ length: count }, (_, index) => {
+      const id = particleId.current++
+      return {
+        id,
+        testIndex: id,
+        hx: `${(Math.random() - 0.5) * 34}px`,
+        hsize: `${22 + Math.floor(Math.random() * 10)}px`,
+        hdelay: `${index * 90 + Math.floor(Math.random() * 90)}ms`,
+      }
+    }) satisfies HeartParticle[]
+
+    setParticles(prev => ({ ...prev, [itemId]: [...(prev[itemId] ?? []), ...nextParticles] }))
+    nextParticles.forEach((particle) => {
+      setTimeout(() => {
+        setParticles(prev => ({
+          ...prev,
+          [itemId]: (prev[itemId] ?? []).filter(x => x.id !== particle.id),
+        }))
+      }, 4500)
+    })
+  }, [])
+
   const handleLike = useCallback((itemId: string) => {
     scheduleAutoAdvance()
-    const id = particleId.current++
     setLikes(prev => ({ ...prev, [itemId]: (prev[itemId] ?? 0) + 1 }))
-    const p: HeartParticle = {
-      id,
-      testIndex: id,
-      hx: `${(Math.random() - 0.5) * 34}px`,
-      hsize: `${22 + Math.floor(Math.random() * 10)}px`,
-      hdelay: `${Math.floor(Math.random() * 120)}ms`,
-    }
-    setParticles(prev => ({ ...prev, [itemId]: [...(prev[itemId] ?? []), p] }))
-    setTimeout(() => {
-      setParticles(prev => ({
-        ...prev,
-        [itemId]: (prev[itemId] ?? []).filter(x => x.id !== p.id),
-      }))
-    }, 4500)
-  }, [scheduleAutoAdvance])
+    releaseHeartParticles(itemId, 1)
+  }, [releaseHeartParticles, scheduleAutoAdvance])
 
   useEffect(() => {
     const section = sectionRef.current
@@ -139,6 +150,17 @@ export function VerticalAlbumCarousel() {
     observer.observe(section)
     return () => observer.disconnect()
   }, [])
+
+  useEffect(() => {
+    likesRef.current = likes
+  }, [likes])
+
+  useEffect(() => {
+    if (!isRevealed) return
+    const item = albums[activeIndex]
+    const likeCount = likesRef.current[item.id] ?? 0
+    releaseHeartParticles(item.id, likeCount)
+  }, [activeIndex, isRevealed, releaseHeartParticles])
 
   useEffect(() => {
     if (!isRevealed) return
