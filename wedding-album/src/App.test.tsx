@@ -50,12 +50,16 @@ describe('Wedding Album invitation', () => {
     render(<App />)
 
     const likeButton = screen.getByRole('button', { name: 'Archive 004 좋아요 0개' })
+    expect(likeButton).toHaveTextContent('♡')
+    expect(likeButton).not.toHaveTextContent('❤')
     expect(screen.queryByTestId('floating-heart-Archive 004-0')).not.toBeInTheDocument()
 
     fireEvent.click(likeButton)
 
     expect(screen.getByRole('button', { name: 'Archive 004 좋아요 1개' })).toBeInTheDocument()
-    expect(screen.getByTestId('floating-heart-Archive 004-0')).toBeInTheDocument()
+    const floatingHeart = screen.getByTestId('floating-heart-Archive 004-0')
+    expect(floatingHeart).toHaveTextContent('♡')
+    expect(floatingHeart).not.toHaveTextContent('💗')
 
     fireEvent.click(screen.getByRole('button', { name: 'Archive 004 좋아요 1개' }))
 

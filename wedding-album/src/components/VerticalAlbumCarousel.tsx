@@ -279,7 +279,7 @@ export function VerticalAlbumCarousel() {
                     style={{ '--hx': p.hx, '--hsize': p.hsize, '--hdelay': p.hdelay } as React.CSSProperties}
                     aria-hidden="true"
                   >
-                    💗
+                    ♡
                   </span>
                 ))}
                 <button
@@ -289,7 +289,7 @@ export function VerticalAlbumCarousel() {
                   onPointerDown={(e) => e.stopPropagation()}
                   onClick={(e) => { e.stopPropagation(); handleLike(item.id) }}
                 >
-                  <span className="heart-btn__icon" aria-hidden="true">❤</span>
+                  <span className="heart-btn__icon" aria-hidden="true">♡</span>
                   {likeCount > 0 && <span className="heart-count" aria-hidden="true">{likeCount}</span>}
                 </button>
               </div>
