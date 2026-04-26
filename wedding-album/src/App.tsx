@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
-import heroGifUrl from '../../shared/gif/KakaoTalk_Photo_2026-04-26-11-15-04.gif?url'
 import weddingAudioUrl from '../../shared/audio/1251. Jelly Steps.mp3?url'
+import heroVideoPosterUrl from '../../shared/video/hero-wedding-poster.jpg?url'
+import heroVideoUrl from '../../shared/video/hero-wedding-film.mp4?url'
 import { VerticalAlbumCarousel } from './components/VerticalAlbumCarousel'
 import './styles/vertical-album.css'
 import './styles/wedding-album.css'
@@ -72,7 +73,27 @@ function RsvpModal({ onClose }: { onClose: () => void }) {
 
 export default function App() {
   const [isRsvpOpen, setIsRsvpOpen] = useState(false)
+  const [isHeroPlaying, setIsHeroPlaying] = useState(true)
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const heroVideoRef = useRef<HTMLVideoElement | null>(null)
+
+  const toggleHeroVideo = async () => {
+    const video = heroVideoRef.current
+    if (!video) return
+
+    if (video.paused) {
+      try {
+        await video.play()
+        setIsHeroPlaying(true)
+      } catch {
+        setIsHeroPlaying(false)
+      }
+      return
+    }
+
+    video.pause()
+    setIsHeroPlaying(false)
+  }
 
   return (
     <main className="wedding-shell" aria-label="Wedding Album Invitation">
@@ -80,8 +101,40 @@ export default function App() {
       <AudioButton audioRef={audioRef} />
 
       <section data-testid="wedding-section-1" className="wedding-section hero-section">
-        <div className="name-arc" aria-label="이윤종 그리고 이다영">이윤종 그리고 이다영</div>
-        <img data-testid="hero-gif" className="hero-gif" src={heroGifUrl} alt="wedding opening animation" />
+        <div className="hero-video-card" aria-label="웨딩 오프닝 영상">
+          <video
+            ref={heroVideoRef}
+            data-testid="hero-video"
+            className="hero-video"
+            src={heroVideoUrl}
+            poster={heroVideoPosterUrl}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            onPlay={() => setIsHeroPlaying(true)}
+            onPause={() => setIsHeroPlaying(false)}
+          />
+          <div className="hero-scrim" aria-hidden="true" />
+          <div className="hero-title-stack" aria-label="Lovely Wedding">
+            <span>Lovely</span>
+            <strong>Wedding</strong>
+          </div>
+          <div className="hero-bottom-copy">
+            <p>이윤종 그리고 이다영</p>
+            <p>APR 26, 2026 AT 11:30 AM</p>
+            <p>비비드예식장 2F, 바우스홀</p>
+          </div>
+          <button
+            type="button"
+            className={`hero-play-button ${isHeroPlaying ? 'is-playing' : ''}`}
+            aria-label={isHeroPlaying ? '히어로 영상 일시정지' : '히어로 영상 재생'}
+            onClick={toggleHeroVideo}
+          >
+            <span aria-hidden="true" />
+          </button>
+        </div>
         <div className="hero-line" />
       </section>
 

@@ -4,16 +4,23 @@ import { describe, expect, it } from 'vitest'
 import App from './App'
 
 describe('Wedding Album invitation', () => {
-  it('renders five full-screen wedding sections with shared gif, audio, map links, and gallery', () => {
+  it('renders five full-screen wedding sections with a video hero, audio, map links, and gallery', () => {
     render(<App />)
 
     expect(screen.getByRole('main', { name: /wedding album invitation/i })).toBeInTheDocument()
     expect(screen.getAllByTestId(/wedding-section-/)).toHaveLength(5)
     expect(screen.getByTestId('wedding-audio')).toHaveAttribute('src', expect.stringContaining('.mp3'))
-    expect(screen.getByTestId('hero-gif')).toHaveAttribute('src', expect.stringContaining('.gif'))
+
+    const heroVideo = screen.getByTestId('hero-video')
+    expect(heroVideo).toHaveAttribute('src', expect.stringContaining('.mp4'))
+    expect(heroVideo).toHaveAttribute('poster', expect.stringContaining('.jpg'))
+    expect(heroVideo).toHaveAttribute('playsinline')
+    expect(screen.getByRole('button', { name: /히어로 영상/i })).toBeInTheDocument()
+    expect(screen.getByText('Lovely')).toBeInTheDocument()
+    expect(screen.getByText('Wedding')).toBeInTheDocument()
     expect(screen.getByText('이윤종 그리고 이다영')).toBeInTheDocument()
     expect(screen.getByText('2026. 04. 26. 일요일 오전 11시 30분')).toBeInTheDocument()
-    expect(screen.getAllByText('비비드예식장 2F, 바우스홀')).toHaveLength(2)
+    expect(screen.getAllByText('비비드예식장 2F, 바우스홀')).toHaveLength(3)
     expect(screen.getByText('소중한 분들을 초대합니다')).toBeInTheDocument()
     expect(screen.getByText(/진실한 사랑으로 꽃피어/)).toBeInTheDocument()
     expect(screen.getAllByText('이아빠')).toHaveLength(2)
@@ -23,7 +30,7 @@ describe('Wedding Album invitation', () => {
     expect(screen.getByRole('link', { name: /네이버지도/i })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /카카오맵/i })).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: /티맵/i })).not.toBeInTheDocument()
-    expect(screen.getAllByRole('img', { name: /wedding gallery/i }).length).toBeGreaterThanOrEqual(4)
+    expect(screen.getByTestId('active-vertical-image')).toHaveAttribute('src', expect.stringContaining('.jpeg'))
   })
 
   it('opens an attendance modal from the share button and lets guests choose attendance', async () => {

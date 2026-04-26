@@ -76,7 +76,132 @@ button, a { font: inherit; }
 .hero-section {
   align-content: center;
   gap: clamp(14px, 2.4vh, 24px);
-  background: linear-gradient(180deg, #f8f7f4 0%, #f2eee9 100%);
+  background:
+    radial-gradient(circle at 50% 12%, rgba(255, 227, 232, .82), transparent 34%),
+    linear-gradient(180deg, #fff7f7 0%, #f2eee9 100%);
+}
+
+.hero-video-card {
+  position: relative;
+  width: min(86vw, 430px);
+  aspect-ratio: 9 / 16;
+  max-height: min(82vh, 760px);
+  overflow: hidden;
+  border-radius: 34px 34px 10px 10px;
+  background: #eadbd5;
+  box-shadow: 0 34px 100px rgba(105,83,65,.2);
+}
+
+.hero-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.hero-scrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(255, 245, 247, .48) 0%, rgba(255, 245, 247, 0) 30%),
+    linear-gradient(0deg, rgba(48, 32, 27, .58) 0%, rgba(48, 32, 27, 0) 36%);
+}
+
+.hero-title-stack {
+  position: absolute;
+  top: clamp(30px, 7vh, 74px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: grid;
+  justify-items: center;
+  color: #d88c9b;
+  text-shadow: 0 2px 18px rgba(255,255,255,.78);
+}
+
+.hero-title-stack span {
+  margin-bottom: -10px;
+  font-family: cursive;
+  font-size: clamp(42px, 12vw, 64px);
+  font-weight: 400;
+  line-height: .9;
+}
+
+.hero-title-stack strong {
+  font-family: cursive;
+  font-size: clamp(54px, 15vw, 82px);
+  font-weight: 700;
+  line-height: .85;
+}
+
+.hero-bottom-copy {
+  position: absolute;
+  left: clamp(24px, 7vw, 42px);
+  right: clamp(24px, 7vw, 42px);
+  bottom: clamp(28px, 6vh, 50px);
+  color: rgba(255,255,255,.92);
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  text-align: right;
+  text-shadow: 0 2px 16px rgba(0,0,0,.28);
+}
+
+.hero-bottom-copy p {
+  margin: 0;
+  font-size: clamp(12px, 3vw, 15px);
+  line-height: 1.55;
+  letter-spacing: .03em;
+}
+
+.hero-bottom-copy p:first-child {
+  margin-bottom: 7px;
+  font-family: ui-serif, Georgia, 'Times New Roman', serif;
+  font-size: clamp(18px, 4.8vw, 25px);
+  letter-spacing: .08em;
+}
+
+.hero-play-button {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 62px;
+  height: 62px;
+  border: 1px solid rgba(255,255,255,.72);
+  border-radius: 50%;
+  background: rgba(246, 205, 214, .8);
+  box-shadow: 0 14px 36px rgba(64, 40, 35, .18);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: opacity .22s ease, transform .22s ease, background .22s ease;
+}
+
+.hero-play-button.is-playing {
+  opacity: .68;
+}
+
+.hero-play-button:hover {
+  transform: translate(-50%, -50%) scale(1.04);
+  background: rgba(246, 205, 214, .94);
+}
+
+.hero-play-button span {
+  width: 0;
+  height: 0;
+  margin-left: 4px;
+  border-top: 11px solid transparent;
+  border-bottom: 11px solid transparent;
+  border-left: 17px solid #fff;
+}
+
+.hero-play-button.is-playing span {
+  width: 16px;
+  height: 20px;
+  margin-left: 0;
+  border: 0;
+  background: linear-gradient(90deg, #fff 0 34%, transparent 34% 66%, #fff 66% 100%);
 }
 
 .hero-meta {
@@ -316,7 +441,7 @@ button, a { font: inherit; }
 
 @media (max-width: 700px) {
   .wedding-section { padding: 22px; }
-  .hero-gif { width: min(84vw, 380px); height: min(54vh, 540px); }
+  .hero-video-card { width: min(90vw, 390px); max-height: 78vh; }
   .invitation-copy { width: min(88vw, 430px); }
   .family-inline { bottom: 22px; }
   .map-card { height: 42vh; }
