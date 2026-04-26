@@ -192,16 +192,12 @@ export default function App() {
     const onVisibilityChange = () => {
       if (document.visibilityState === 'visible') void tryPlayAudio(false)
     }
-    const onInteraction = () => { void tryPlayAudio(true) }
 
     window.setTimeout(() => { void tryPlayAudio(false) }, 0)
     audio.addEventListener('loadedmetadata', onReady)
     audio.addEventListener('canplay', onReady)
     window.addEventListener('pageshow', onPageShow)
     document.addEventListener('visibilitychange', onVisibilityChange)
-    window.addEventListener('pointerdown', onInteraction, { passive: true })
-    window.addEventListener('touchstart', onInteraction, { passive: true })
-    window.addEventListener('keydown', onInteraction)
 
     return () => {
       cancelled = true
@@ -210,9 +206,6 @@ export default function App() {
       audio.removeEventListener('canplay', onReady)
       window.removeEventListener('pageshow', onPageShow)
       document.removeEventListener('visibilitychange', onVisibilityChange)
-      window.removeEventListener('pointerdown', onInteraction)
-      window.removeEventListener('touchstart', onInteraction)
-      window.removeEventListener('keydown', onInteraction)
     }
   }, [])
 
