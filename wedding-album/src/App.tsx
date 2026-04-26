@@ -51,6 +51,109 @@ function RsvpModal({ onClose }: { onClose: () => void }) {
   )
 }
 
+type AccountItem = {
+  name: string
+  bank: string
+  number: string
+}
+
+type AccountGroup = {
+  title: string
+  items: AccountItem[]
+}
+
+const accountGroups: AccountGroup[] = [
+  {
+    title: '신랑측 계좌번호',
+    items: [
+      { name: '이윤종', bank: 'IBK기업', number: '000-000000-00-000' },
+      { name: '이아빠', bank: 'KB국민', number: '000000-00-000000' },
+      { name: '박엄마', bank: 'IBK기업', number: '000-000000-00-000' },
+    ],
+  },
+  {
+    title: '신부측 계좌번호',
+    items: [
+      { name: '이다영', bank: '카카오뱅크', number: '0000-00-0000000' },
+      { name: '이아빠', bank: '부산은행', number: '000-00-000000-0' },
+      { name: '윤엄마', bank: '우리은행', number: '0000-000-000000' },
+    ],
+  },
+]
+
+function AccountSection() {
+  const [openGroups, setOpenGroups] = useState(() => accountGroups.map(group => group.title))
+  const [copiedKey, setCopiedKey] = useState<string | null>(null)
+
+  const toggleGroup = (title: string) => {
+    setOpenGroups(prev => (
+      prev.includes(title) ? prev.filter(item => item !== title) : [...prev, title]
+    ))
+  }
+
+  const copyAccount = async (account: AccountItem) => {
+    const text = `${account.name} ${account.bank} ${account.number}`
+    await navigator.clipboard?.writeText(text).catch(() => {})
+    setCopiedKey(`${account.name}-${account.bank}`)
+    window.setTimeout(() => setCopiedKey(null), 1300)
+  }
+
+  return (
+    <section data-testid="wedding-section-6" className="wedding-section account-section">
+      <div className="account-inner">
+        <p className="script-title">Account</p>
+        <h2>마음 전하는 곳</h2>
+        <div className="account-copy">
+          <p>참석이 어려우신 분들을 위해</p>
+          <p>계좌번호를 안내해 드립니다.</p>
+          <p>너그러운 마음으로 양해 부탁드립니다.</p>
+        </div>
+
+        <div className="account-card-list">
+          {accountGroups.map(group => {
+            const isOpen = openGroups.includes(group.title)
+            return (
+              <article className="account-card" key={group.title}>
+                <button
+                  type="button"
+                  className="account-card__header"
+                  aria-expanded={isOpen}
+                  aria-label={`${group.title} ${isOpen ? '접기' : '펼치기'}`}
+                  onClick={() => toggleGroup(group.title)}
+                >
+                  <span>{group.title}</span>
+                  <span className={`account-chevron ${isOpen ? 'is-open' : ''}`} aria-hidden="true">⌃</span>
+                </button>
+                {isOpen && (
+                  <div className="account-rows">
+                    {group.items.map(account => {
+                      const copied = copiedKey === `${account.name}-${account.bank}`
+                      return (
+                        <div className="account-row" key={`${group.title}-${account.name}-${account.bank}`}>
+                          <span className="account-name">{account.name}</span>
+                          <span className="account-number">{account.bank} {account.number}</span>
+                          <button
+                            type="button"
+                            className="account-copy-button"
+                            aria-label={`${account.name} 계좌 복사`}
+                            onClick={() => copyAccount(account)}
+                          >
+                            {copied ? '완료' : '복사'}
+                          </button>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+              </article>
+            )
+          })}
+        </div>
+      </div>
+    </section>
+  )
+}
+
 export default function App() {
   const [isRsvpOpen, setIsRsvpOpen] = useState(false)
   const [isHeroPlaying, setIsHeroPlaying] = useState(true)
@@ -214,6 +317,8 @@ export default function App() {
           전달하기
         </button>
       </section>
+
+      <AccountSection />
 
       {isRsvpOpen && <RsvpModal onClose={() => setIsRsvpOpen(false)} />}
     </main>
