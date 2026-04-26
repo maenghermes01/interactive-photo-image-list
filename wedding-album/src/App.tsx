@@ -165,13 +165,55 @@ export default function App() {
     const audio = audioRef.current
     if (!audio) return
 
-    audio.play().catch(() => {
-      const onInteraction = () => {
-        audio.play().catch(() => {})
-        window.removeEventListener('pointerdown', onInteraction)
+    let cancelled = false
+    let retryTimer: ReturnType<typeof window.setTimeout> | null = null
+    let autoplayAttempts = 0
+    const maxAutoplayAttempts = 6
+
+    const tryPlayAudio = async (fromUserGesture = false) => {
+      if (cancelled || !audio.paused) return
+      if (!fromUserGesture && autoplayAttempts >= maxAutoplayAttempts) return
+      if (!fromUserGesture) autoplayAttempts += 1
+
+      audio.muted = false
+      audio.volume = 0.72
+
+      try {
+        await audio.play()
+      } catch {
+        if (!fromUserGesture && !cancelled) {
+          retryTimer = window.setTimeout(() => { void tryPlayAudio(false) }, 900)
+        }
       }
-      window.addEventListener('pointerdown', onInteraction)
-    })
+    }
+
+    const onReady = () => { void tryPlayAudio(false) }
+    const onPageShow = () => { void tryPlayAudio(false) }
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') void tryPlayAudio(false)
+    }
+    const onInteraction = () => { void tryPlayAudio(true) }
+
+    window.setTimeout(() => { void tryPlayAudio(false) }, 0)
+    audio.addEventListener('loadedmetadata', onReady)
+    audio.addEventListener('canplay', onReady)
+    window.addEventListener('pageshow', onPageShow)
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    window.addEventListener('pointerdown', onInteraction, { passive: true })
+    window.addEventListener('touchstart', onInteraction, { passive: true })
+    window.addEventListener('keydown', onInteraction)
+
+    return () => {
+      cancelled = true
+      if (retryTimer) window.clearTimeout(retryTimer)
+      audio.removeEventListener('loadedmetadata', onReady)
+      audio.removeEventListener('canplay', onReady)
+      window.removeEventListener('pageshow', onPageShow)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+      window.removeEventListener('pointerdown', onInteraction)
+      window.removeEventListener('touchstart', onInteraction)
+      window.removeEventListener('keydown', onInteraction)
+    }
   }, [])
 
   const toggleAudio = async () => {
@@ -208,8 +250,9 @@ export default function App() {
         ref={audioRef}
         data-testid="wedding-audio"
         src={weddingAudioUrl}
+        autoPlay
         loop
-        preload="metadata"
+        preload="auto"
         onPlay={() => setIsAudioPlaying(true)}
         onPause={() => setIsAudioPlaying(false)}
       />

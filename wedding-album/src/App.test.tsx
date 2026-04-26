@@ -14,6 +14,8 @@ describe('Wedding Album invitation', () => {
     expect(screen.getByRole('main', { name: /wedding album invitation/i })).toBeInTheDocument()
     expect(screen.getAllByTestId(/wedding-section-/)).toHaveLength(6)
     expect(screen.getByTestId('wedding-audio')).toHaveAttribute('src', expect.stringContaining('.mp3'))
+    expect(screen.getByTestId('wedding-audio')).toHaveAttribute('autoplay')
+    expect(screen.getByTestId('wedding-audio')).toHaveAttribute('preload', 'auto')
 
     const heroVideo = screen.getByTestId('hero-video')
     expect(heroVideo).toHaveAttribute('src', expect.stringContaining('.mp4'))
