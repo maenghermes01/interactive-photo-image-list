@@ -1,0 +1,144 @@
+:root {
+  --bg: #f5f5f2;
+  --text: #1d1d1f;
+  --focus: #0071e3;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--text);
+  background: var(--bg);
+}
+
+* { box-sizing: border-box; }
+html, body, #root { width: 100%; min-height: 100%; margin: 0; }
+body { overflow: hidden; }
+
+.page-shell {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 120%, rgba(0,0,0,.06), transparent 34%),
+    var(--bg);
+}
+
+.arc-carousel {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: none;
+  outline: none;
+}
+
+.arc-carousel:focus-visible {
+  box-shadow: inset 0 0 0 3px rgba(0,113,227,.38);
+}
+
+.arc-carousel.is-dragging { cursor: grabbing; }
+
+.active-album-backdrop {
+  position: absolute;
+  inset: -8vh -8vw;
+  z-index: 1;
+  opacity: .36;
+  background-size: cover !important;
+  background-position: center !important;
+  filter: blur(22px) saturate(1.18);
+  transform: scale(1.04);
+  transition: background 620ms ease, opacity 420ms ease, filter 420ms ease;
+  pointer-events: none;
+}
+
+.active-album-backdrop::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(245,245,242,.52) 0%, rgba(245,245,242,.24) 48%, rgba(245,245,242,.68) 100%),
+    radial-gradient(circle at 50% 78%, rgba(245,245,242,.08), rgba(245,245,242,.52) 58%);
+}
+
+@keyframes activeImageFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* <img> tag — natural aspect ratio is preserved automatically by the browser
+   when only max-width and max-height are set (no explicit width/height). */
+.active-image-display {
+  display: block;
+  position: absolute;
+  top: clamp(16px, 4vh, 40px);
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: min(75vw, 460px);
+  /* max-height is set inline from JS so it never overlaps the arc cards */
+  z-index: 10;
+  border-radius: clamp(12px, 1.5vw, 20px);
+  box-shadow: 0 24px 80px rgba(0,0,0,.22), 0 4px 20px rgba(0,0,0,.12);
+  animation: activeImageFade 400ms cubic-bezier(.2,.8,.2,1) both;
+  pointer-events: none;
+  object-fit: contain;
+}
+
+.arc-carousel__cards {
+  position: absolute;
+  inset: 0;
+}
+
+.album-card {
+  position: absolute;
+  left: 0;
+  top: 0;
+  /* Scales with viewport width AND height so short screens stay clear of the image */
+  width: clamp(110px, min(15vw, 18vh), 210px);
+  height: clamp(165px, min(22vw, 27vh), 315px);
+  overflow: hidden;
+  border: 0;
+  border-radius: 4px;
+  box-shadow: 0 20px 55px rgba(0,0,0,.16);
+  cursor: pointer;
+  transition: transform 620ms cubic-bezier(.2,.8,.2,1), opacity 420ms ease, box-shadow 420ms ease;
+  transform-origin: center center;
+  will-change: transform, opacity;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+.album-card[aria-current="true"] {
+  box-shadow: 0 24px 70px rgba(0,0,0,.22);
+}
+
+.album-card:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 4px;
+}
+
+.album-card__shine {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, transparent 0%, rgba(0,0,0,.08) 42%, rgba(0,0,0,.32) 100%),
+    linear-gradient(125deg, rgba(255,255,255,.12), transparent 36%, rgba(255,255,255,.06));
+}
+
+@media (max-width: 700px) {
+  .active-image-display {
+    max-width: min(88vw, 360px);
+  }
+
+  .album-card {
+    width: 142px;
+    height: 214px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
