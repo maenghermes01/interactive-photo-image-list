@@ -8,7 +8,7 @@ export type AlbumItem = {
   description: string
 }
 
-const realImageModules = import.meta.glob('../image/real-test-image/*.jpeg', {
+const realImageModules = import.meta.glob('../../../shared/image/real-test-image/*.jpeg', {
   eager: true,
   query: '?url',
   import: 'default',
