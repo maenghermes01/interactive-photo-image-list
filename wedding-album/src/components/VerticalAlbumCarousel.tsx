@@ -13,8 +13,10 @@ type VisiblePanel = {
 
 type HeartParticle = {
   id: number
+  testIndex: number
   hx: string
   hsize: string
+  hdelay: string
 }
 
 function wrapIndex(index: number, total: number): number {
@@ -85,6 +87,7 @@ export function VerticalAlbumCarousel() {
   const velocity = useRef(0)
   const sectionRef = useRef<HTMLElement>(null)
   const autoTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const particleId = useRef(0)
   const activeItem = albums[activeIndex]
 
   const panels = useMemo(
@@ -103,11 +106,14 @@ export function VerticalAlbumCarousel() {
 
   const handleLike = useCallback((itemId: string) => {
     scheduleAutoAdvance()
+    const id = particleId.current++
     setLikes(prev => ({ ...prev, [itemId]: (prev[itemId] ?? 0) + 1 }))
     const p: HeartParticle = {
-      id: Date.now() + Math.random(),
-      hx: `${(Math.random() - 0.5) * 28}px`,
-      hsize: `${16 + Math.floor(Math.random() * 10)}px`,
+      id,
+      testIndex: id,
+      hx: `${(Math.random() - 0.5) * 34}px`,
+      hsize: `${32 + Math.floor(Math.random() * 18)}px`,
+      hdelay: `${Math.floor(Math.random() * 120)}ms`,
     }
     setParticles(prev => ({ ...prev, [itemId]: [...(prev[itemId] ?? []), p] }))
     setTimeout(() => {
@@ -115,7 +121,7 @@ export function VerticalAlbumCarousel() {
         ...prev,
         [itemId]: (prev[itemId] ?? []).filter(x => x.id !== p.id),
       }))
-    }, 1500)
+    }, 4500)
   }, [scheduleAutoAdvance])
 
   useEffect(() => {
@@ -237,11 +243,10 @@ export function VerticalAlbumCarousel() {
           return (
             <div
               key={item.id}
-              role="button"
-              tabIndex={0}
               aria-current={isActive ? 'true' : undefined}
               aria-label={item.title}
               className={`vertical-panel ${isActive ? 'vertical-panel--active' : ''}`}
+              role="group"
               onPointerDown={(e) => { e.stopPropagation(); onPointerDown(e) }}
               onClick={() => {
                 if (hasDragged.current) return
@@ -265,26 +270,27 @@ export function VerticalAlbumCarousel() {
                 aria-hidden={!isActive}
                 className={isActive ? 'active-vertical-image' : undefined}
               />
-              <div className="heart-area" aria-hidden="true">
+              <div className="heart-area" aria-hidden="false">
                 {(particles[item.id] ?? []).map(p => (
                   <span
                     key={p.id}
                     className="heart-particle"
-                    style={{ '--hx': p.hx, '--hsize': p.hsize } as React.CSSProperties}
+                    data-testid={`floating-heart-${item.title}-${p.testIndex}`}
+                    style={{ '--hx': p.hx, '--hsize': p.hsize, '--hdelay': p.hdelay } as React.CSSProperties}
+                    aria-hidden="true"
                   >
-                    ❤️
+                    💗
                   </span>
                 ))}
                 <button
                   type="button"
-                  className="heart-btn"
-                  aria-label={`좋아요 ${likeCount}개`}
-                  aria-hidden="false"
+                  className={`heart-btn ${likeCount > 0 ? 'heart-btn--liked' : ''}`}
+                  aria-label={`${item.title} 좋아요 ${likeCount}개`}
                   onPointerDown={(e) => e.stopPropagation()}
                   onClick={(e) => { e.stopPropagation(); handleLike(item.id) }}
                 >
-                  <span>❤</span>
-                  {likeCount > 0 && <span className="heart-count">{likeCount}</span>}
+                  <span className="heart-btn__icon" aria-hidden="true">❤</span>
+                  {likeCount > 0 && <span className="heart-count" aria-hidden="true">{likeCount}</span>}
                 </button>
               </div>
             </div>

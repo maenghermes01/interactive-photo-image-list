@@ -1,9 +1,13 @@
-import { render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, afterEach, vi } from 'vitest'
 import App from './App'
 
 describe('Wedding Album invitation', () => {
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
   it('renders five full-screen wedding sections with a video hero, audio, map links, and gallery', () => {
     render(<App />)
 
@@ -31,6 +35,31 @@ describe('Wedding Album invitation', () => {
     expect(screen.getByRole('link', { name: /카카오맵/i })).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: /티맵/i })).not.toBeInTheDocument()
     expect(screen.getByTestId('active-vertical-image')).toHaveAttribute('src', expect.stringContaining('.jpeg'))
+  })
+
+  it('increments per-card likes and releases floating hearts that disappear after animation', () => {
+    vi.useFakeTimers()
+    render(<App />)
+
+    const likeButton = screen.getByRole('button', { name: 'Archive 004 좋아요 0개' })
+    expect(screen.queryByTestId('floating-heart-Archive 004-0')).not.toBeInTheDocument()
+
+    fireEvent.click(likeButton)
+
+    expect(screen.getByRole('button', { name: 'Archive 004 좋아요 1개' })).toBeInTheDocument()
+    expect(screen.getByTestId('floating-heart-Archive 004-0')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Archive 004 좋아요 1개' }))
+
+    expect(screen.getByRole('button', { name: 'Archive 004 좋아요 2개' })).toBeInTheDocument()
+    expect(screen.getByTestId('floating-heart-Archive 004-1')).toBeInTheDocument()
+
+    act(() => {
+      vi.advanceTimersByTime(4800)
+    })
+
+    expect(screen.queryByTestId('floating-heart-Archive 004-0')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('floating-heart-Archive 004-1')).not.toBeInTheDocument()
   })
 
   it('opens an attendance modal from the share button and lets guests choose attendance', async () => {
