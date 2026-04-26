@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import weddingAudioUrl from '../../shared/audio/1251. Jelly Steps.mp3?url'
 import heroVideoPosterUrl from '../../shared/video/hero-wedding-poster.jpg?url'
 import heroVideoUrl from '../../shared/video/hero-wedding-film.mp4?url'
@@ -6,33 +6,13 @@ import { VerticalAlbumCarousel } from './components/VerticalAlbumCarousel'
 import './styles/vertical-album.css'
 import './styles/wedding-album.css'
 
-function AudioButton({ audioRef }: { audioRef: React.RefObject<HTMLAudioElement | null> }) {
-  const [isPlaying, setIsPlaying] = useState(false)
-
-  const toggleAudio = async () => {
-    const audio = audioRef.current
-    if (!audio) return
-
-    if (isPlaying) {
-      audio.pause()
-      setIsPlaying(false)
-      return
-    }
-
-    try {
-      await audio.play()
-      setIsPlaying(true)
-    } catch {
-      setIsPlaying(false)
-    }
-  }
-
+function AudioButton({ isPlaying, onToggle }: { isPlaying: boolean; onToggle: () => void }) {
   return (
     <button
       type="button"
       aria-label={isPlaying ? '음악 끄기' : '음악 켜기'}
       className={`audio-button ${isPlaying ? 'is-playing' : ''}`}
-      onClick={toggleAudio}
+      onClick={onToggle}
     >
       <span />
       <span />
@@ -74,8 +54,32 @@ function RsvpModal({ onClose }: { onClose: () => void }) {
 export default function App() {
   const [isRsvpOpen, setIsRsvpOpen] = useState(false)
   const [isHeroPlaying, setIsHeroPlaying] = useState(true)
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const heroVideoRef = useRef<HTMLVideoElement | null>(null)
+
+  useEffect(() => {
+    const audio = audioRef.current
+    if (!audio) return
+
+    audio.play().catch(() => {
+      const onInteraction = () => {
+        audio.play().catch(() => {})
+        window.removeEventListener('pointerdown', onInteraction)
+      }
+      window.addEventListener('pointerdown', onInteraction)
+    })
+  }, [])
+
+  const toggleAudio = async () => {
+    const audio = audioRef.current
+    if (!audio) return
+    if (!audio.paused) {
+      audio.pause()
+    } else {
+      await audio.play().catch(() => {})
+    }
+  }
 
   const toggleHeroVideo = async () => {
     const video = heroVideoRef.current
@@ -97,45 +101,50 @@ export default function App() {
 
   return (
     <main className="wedding-shell" aria-label="Wedding Album Invitation">
-      <audio ref={audioRef} data-testid="wedding-audio" src={weddingAudioUrl} loop preload="metadata" />
-      <AudioButton audioRef={audioRef} />
+      <audio
+        ref={audioRef}
+        data-testid="wedding-audio"
+        src={weddingAudioUrl}
+        loop
+        preload="metadata"
+        onPlay={() => setIsAudioPlaying(true)}
+        onPause={() => setIsAudioPlaying(false)}
+      />
+      <AudioButton isPlaying={isAudioPlaying} onToggle={toggleAudio} />
 
-      <section data-testid="wedding-section-1" className="wedding-section hero-section">
-        <div className="hero-video-card" aria-label="웨딩 오프닝 영상">
-          <video
-            ref={heroVideoRef}
-            data-testid="hero-video"
-            className="hero-video"
-            src={heroVideoUrl}
-            poster={heroVideoPosterUrl}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            onPlay={() => setIsHeroPlaying(true)}
-            onPause={() => setIsHeroPlaying(false)}
-          />
-          <div className="hero-scrim" aria-hidden="true" />
-          <div className="hero-title-stack" aria-label="Lovely Wedding">
-            <span>Lovely</span>
-            <strong>Wedding</strong>
-          </div>
-          <div className="hero-bottom-copy">
-            <p>이윤종 그리고 이다영</p>
-            <p>APR 26, 2026 AT 11:30 AM</p>
-            <p>비비드예식장 2F, 바우스홀</p>
-          </div>
-          <button
-            type="button"
-            className={`hero-play-button ${isHeroPlaying ? 'is-playing' : ''}`}
-            aria-label={isHeroPlaying ? '히어로 영상 일시정지' : '히어로 영상 재생'}
-            onClick={toggleHeroVideo}
-          >
-            <span aria-hidden="true" />
-          </button>
+      <section data-testid="wedding-section-1" className="wedding-section hero-section" aria-label="웨딩 오프닝 영상">
+        <video
+          ref={heroVideoRef}
+          data-testid="hero-video"
+          className="hero-video"
+          src={heroVideoUrl}
+          poster={heroVideoPosterUrl}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          onPlay={() => setIsHeroPlaying(true)}
+          onPause={() => setIsHeroPlaying(false)}
+        />
+        <div className="hero-scrim" aria-hidden="true" />
+        <div className="hero-title-stack" aria-label="Lovely Wedding">
+          <span>Lovely</span>
+          <strong>Wedding</strong>
         </div>
-        <div className="hero-line" />
+        <div className="hero-bottom-copy">
+          <p>이윤종 그리고 이다영</p>
+          <p>APR 26, 2026 AT 11:30 AM</p>
+          <p>비비드예식장 2F, 바우스홀</p>
+        </div>
+        <button
+          type="button"
+          className={`hero-play-button ${isHeroPlaying ? 'is-playing' : ''}`}
+          aria-label={isHeroPlaying ? '히어로 영상 일시정지' : '히어로 영상 재생'}
+          onClick={toggleHeroVideo}
+        >
+          <span aria-hidden="true" />
+        </button>
       </section>
 
       <section data-testid="wedding-section-2" className="wedding-section invitation-section">

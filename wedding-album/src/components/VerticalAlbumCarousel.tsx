@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { albums } from '../data/albums'
 
 type VisiblePanel = {
@@ -9,6 +9,12 @@ type VisiblePanel = {
   scale: number
   opacity: number
   zIndex: number
+}
+
+type HeartParticle = {
+  id: number
+  hx: string
+  hsize: string
 }
 
 function wrapIndex(index: number, total: number): number {
@@ -26,7 +32,12 @@ function shortestRelativeIndex(index: number, activeIndex: number, total: number
 
 const CARD_SPACING_VW = 58
 
-function getVisiblePanels(activeIndex: number, itemCount: number, dragOffsetPx = 0): VisiblePanel[] {
+function getVisiblePanels(
+  activeIndex: number,
+  itemCount: number,
+  dragOffsetPx = 0,
+  revealed = true,
+): VisiblePanel[] {
   const dragVw = (dragOffsetPx / window.innerWidth) * 100
   const dragStep = dragVw / CARD_SPACING_VW
 
@@ -34,6 +45,18 @@ function getVisiblePanels(activeIndex: number, itemCount: number, dragOffsetPx =
     const relativeIndex = shortestRelativeIndex(index, activeIndex, itemCount)
     const effectiveRel = relativeIndex + dragStep
     const distance = Math.abs(effectiveRel)
+
+    if (!revealed) {
+      return {
+        index,
+        relativeIndex,
+        xOffset: 0,
+        rotation: 0,
+        scale: relativeIndex === 0 ? 1 : 0.9,
+        opacity: relativeIndex === 0 ? 1 : 0,
+        zIndex: Math.max(1, 20 - Math.abs(relativeIndex)),
+      }
+    }
 
     return {
       index,
@@ -51,6 +74,9 @@ export function VerticalAlbumCarousel() {
   const [activeIndex, setActiveIndex] = useState(3)
   const [dragOffset, setDragOffset] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
+  const [isRevealed, setIsRevealed] = useState(false)
+  const [likes, setLikes] = useState<Record<string, number>>({})
+  const [particles, setParticles] = useState<Record<string, HeartParticle[]>>({})
   const isDraggingRef = useRef(false)
   const hasDragged = useRef(false)
   const dragStartX = useRef(0)
@@ -58,16 +84,63 @@ export function VerticalAlbumCarousel() {
   const lastT = useRef(0)
   const velocity = useRef(0)
   const sectionRef = useRef<HTMLElement>(null)
+  const autoTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const activeItem = albums[activeIndex]
 
   const panels = useMemo(
-    () => getVisiblePanels(activeIndex, albums.length, dragOffset),
-    [activeIndex, dragOffset],
+    () => getVisiblePanels(activeIndex, albums.length, dragOffset, isRevealed),
+    [activeIndex, dragOffset, isRevealed],
   )
 
   const goTo = useCallback((index: number) => setActiveIndex(wrapIndex(index, albums.length)), [])
   const previous = useCallback(() => goTo(activeIndex - 1), [activeIndex, goTo])
   const next = useCallback(() => goTo(activeIndex + 1), [activeIndex, goTo])
+
+  const scheduleAutoAdvance = useCallback(() => {
+    if (autoTimer.current) clearTimeout(autoTimer.current)
+    autoTimer.current = setTimeout(() => next(), 5000)
+  }, [next])
+
+  const handleLike = useCallback((itemId: string) => {
+    scheduleAutoAdvance()
+    setLikes(prev => ({ ...prev, [itemId]: (prev[itemId] ?? 0) + 1 }))
+    const p: HeartParticle = {
+      id: Date.now() + Math.random(),
+      hx: `${(Math.random() - 0.5) * 28}px`,
+      hsize: `${16 + Math.floor(Math.random() * 10)}px`,
+    }
+    setParticles(prev => ({ ...prev, [itemId]: [...(prev[itemId] ?? []), p] }))
+    setTimeout(() => {
+      setParticles(prev => ({
+        ...prev,
+        [itemId]: (prev[itemId] ?? []).filter(x => x.id !== p.id),
+      }))
+    }, 1500)
+  }, [scheduleAutoAdvance])
+
+  useEffect(() => {
+    const section = sectionRef.current
+    if (!section) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => setIsRevealed(true), 150)
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.3 },
+    )
+    observer.observe(section)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (!isRevealed) return
+    scheduleAutoAdvance()
+    return () => {
+      if (autoTimer.current) clearTimeout(autoTimer.current)
+    }
+  }, [activeIndex, isRevealed, scheduleAutoAdvance])
 
   const onPointerDown = useCallback((event: React.PointerEvent) => {
     if (isDraggingRef.current) return
@@ -78,6 +151,7 @@ export function VerticalAlbumCarousel() {
     lastX.current = event.clientX
     lastT.current = performance.now()
     velocity.current = 0
+    if (autoTimer.current) clearTimeout(autoTimer.current)
     sectionRef.current?.setPointerCapture(event.pointerId)
   }, [])
 
@@ -103,8 +177,8 @@ export function VerticalAlbumCarousel() {
 
       const movement = event.clientX - dragStartX.current
       const v = velocity.current
-      const VEL = 0.5   // px/ms
-      const DIST = 30   // px
+      const VEL = 0.5
+      const DIST = 30
 
       if (Math.abs(movement) > 2) hasDragged.current = true
 
@@ -113,10 +187,11 @@ export function VerticalAlbumCarousel() {
 
       if (didGoNext) next()
       else if (didGoPrev) previous()
+      else scheduleAutoAdvance()
 
       setTimeout(() => { hasDragged.current = false }, 0)
     },
-    [next, previous],
+    [next, previous, scheduleAutoAdvance],
   )
 
   const onPointerCancel = useCallback((event: React.PointerEvent<HTMLElement>) => {
@@ -126,7 +201,8 @@ export function VerticalAlbumCarousel() {
     setDragOffset(0)
     hasDragged.current = false
     event.currentTarget.releasePointerCapture(event.pointerId)
-  }, [])
+    scheduleAutoAdvance()
+  }, [scheduleAutoAdvance])
 
   return (
     <section
@@ -156,18 +232,23 @@ export function VerticalAlbumCarousel() {
         {panels.map((panel) => {
           const item = albums[panel.index]
           const isActive = panel.index === activeIndex
+          const likeCount = likes[item.id] ?? 0
 
           return (
-            <button
+            <div
               key={item.id}
+              role="button"
+              tabIndex={0}
               aria-current={isActive ? 'true' : undefined}
               aria-label={item.title}
               className={`vertical-panel ${isActive ? 'vertical-panel--active' : ''}`}
-              type="button"
               onPointerDown={(e) => { e.stopPropagation(); onPointerDown(e) }}
               onClick={() => {
                 if (hasDragged.current) return
                 if (!isActive) goTo(panel.index)
+              }}
+              onKeyDown={(e) => {
+                if ((e.key === 'Enter' || e.key === ' ') && !isActive) goTo(panel.index)
               }}
               style={{
                 '--panel-x': `${panel.xOffset}vw`,
@@ -184,7 +265,29 @@ export function VerticalAlbumCarousel() {
                 aria-hidden={!isActive}
                 className={isActive ? 'active-vertical-image' : undefined}
               />
-            </button>
+              <div className="heart-area" aria-hidden="true">
+                {(particles[item.id] ?? []).map(p => (
+                  <span
+                    key={p.id}
+                    className="heart-particle"
+                    style={{ '--hx': p.hx, '--hsize': p.hsize } as React.CSSProperties}
+                  >
+                    ❤️
+                  </span>
+                ))}
+                <button
+                  type="button"
+                  className="heart-btn"
+                  aria-label={`좋아요 ${likeCount}개`}
+                  aria-hidden="false"
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onClick={(e) => { e.stopPropagation(); handleLike(item.id) }}
+                >
+                  <span>❤</span>
+                  {likeCount > 0 && <span className="heart-count">{likeCount}</span>}
+                </button>
+              </div>
+            </div>
           )
         })}
       </div>

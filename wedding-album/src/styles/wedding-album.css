@@ -1,5 +1,5 @@
 :root {
-  --paper: #f7f6f3;
+  --paper: #ffffff;
   --ink: #2f2f2f;
   --warm: #b39077;
   --warm-dark: #90715e;
@@ -99,6 +99,7 @@ button, a { font: inherit; }
   height: 100%;
   object-fit: cover;
   object-position: center;
+  z-index: 0;
 }
 
 .hero-scrim {
@@ -251,7 +252,7 @@ button, a { font: inherit; }
 .invitation-section {
   align-content: center;
   text-align: center;
-  background: #f8f7f4;
+  background: #ffffff;
 }
 
 .invitation-copy {
@@ -300,7 +301,7 @@ button, a { font: inherit; }
 }
 .family-inline i { color: #b9a28f; font-style: normal; }
 
-.map-section, .closing-section { text-align: center; background: #fbfaf8; }
+.map-section, .closing-section { text-align: center; background: #ffffff; }
 .map-section h2, .closing-section h2 {
   margin: 0 0 14px;
   color: var(--warm-dark);
