@@ -112,7 +112,7 @@ export function VerticalAlbumCarousel() {
       id,
       testIndex: id,
       hx: `${(Math.random() - 0.5) * 34}px`,
-      hsize: `${32 + Math.floor(Math.random() * 18)}px`,
+      hsize: `${22 + Math.floor(Math.random() * 10)}px`,
       hdelay: `${Math.floor(Math.random() * 120)}ms`,
     }
     setParticles(prev => ({ ...prev, [itemId]: [...(prev[itemId] ?? []), p] }))
