@@ -94,37 +94,63 @@ export default function App() {
       <AudioButton audioRef={audioRef} />
 
       <section data-testid="wedding-section-1" className="wedding-section hero-section">
+        <div className="hero-meta">
+          <p>2026. 04. 26. 일요일 오전 11시 30분</p>
+          <p>비비드예식장 2F, 바우스홀</p>
+        </div>
         <div className="name-arc" aria-label="이윤종 그리고 이다영">이윤종 그리고 이다영</div>
         <img data-testid="hero-gif" className="hero-gif" src={heroGifUrl} alt="wedding opening animation" />
         <div className="hero-line" />
       </section>
 
-      <section data-testid="wedding-section-2" className="wedding-section family-section">
-        <p className="eyebrow">Together with their families</p>
-        <div className="family-card" aria-label="혼주와 신랑 신부 소개">
-          <p><strong>이아빠</strong><span>·</span><strong>박엄마</strong></p>
-          <p>의</p>
-          <p>장남</p>
-          <h2>이윤종</h2>
-          <div className="divider">|</div>
-          <p><strong>이아빠</strong><span>·</span><strong>윤엄마</strong></p>
-          <p>의</p>
-          <p>장녀</p>
-          <h2>이다영</h2>
+      <section data-testid="wedding-section-2" className="wedding-section invitation-section">
+        <div className="invitation-copy">
+          <p className="script-title">Invitation</p>
+          <h2>소중한 분들을 초대합니다</h2>
+          <p>
+            저희 두 사람의 작은 만남이<br />
+            진실한 사랑으로 꽃피어<br />
+            오늘 이 자리를 빛내는 결혼식으로 이어졌습니다.
+          </p>
+          <p>
+            평생 서로를 귀히 여기며<br />
+            처음의 설렘과 순수함을 잃지 않고<br />
+            존중하고 아껴 나가겠습니다.
+          </p>
+          <p>
+            믿음과 사랑을 기초로 한 이 날에<br />
+            여러분의 따뜻한 축복이 함께 한다면<br />
+            더할 나위 없는 기쁨으로 간직하겠습니다.
+          </p>
+          <div className="ornament" aria-hidden="true">♡</div>
+          <p className="couple-line">신랑 이윤종 · 신부 이다영</p>
+        </div>
+        <div className="family-inline" aria-label="혼주와 신랑 신부 소개">
+          <span><strong>이아빠</strong> · <strong>박엄마</strong>의 장남 <b>이윤종</b></span>
+          <i>|</i>
+          <span><strong>이아빠</strong> · <strong>윤엄마</strong>의 장녀 <b>이다영</b></span>
         </div>
       </section>
 
       <section data-testid="wedding-section-3" className="wedding-section map-section">
-        <p className="eyebrow">Location</p>
+        <p className="script-title">Location</p>
         <h2>오시는 길</h2>
-        <p className="venue">서울의 어느 따뜻한 예식장</p>
-        <div className="map-card" aria-hidden="true">
+        <p className="venue">비비드예식장 2F, 바우스홀</p>
+        <p className="address"><span aria-hidden="true">▣</span> 경기 성남시 분당구 정자일로 95</p>
+        <div className="map-card" aria-label="네이버 지도 미리보기">
+          <div className="map-road map-road--one" />
+          <div className="map-road map-road--two" />
           <div className="map-river" />
-          <div className="map-pin">Wedding</div>
+          <span className="map-label label-1">마세라티</span>
+          <span className="map-label label-2">롯데하이마트</span>
+          <span className="map-label label-3">더샵스타파크</span>
+          <span className="map-label label-4">미켈란쉐르빌</span>
+          <span className="map-label label-5">늘푸른중학교</span>
+          <div className="map-pin">NAVER 1784</div>
         </div>
         <div className="map-actions">
-          <a href="https://map.naver.com" target="_blank" rel="noreferrer">네이버 지도</a>
-          <a href="https://map.kakao.com" target="_blank" rel="noreferrer">카카오 지도</a>
+          <a href="https://map.naver.com" target="_blank" rel="noreferrer"><span>⌖</span>네이버지도</a>
+          <a href="https://map.kakao.com" target="_blank" rel="noreferrer"><span>●</span>카카오맵</a>
         </div>
       </section>
 
@@ -137,10 +163,13 @@ export default function App() {
       </section>
 
       <section data-testid="wedding-section-5" className="wedding-section closing-section">
-        <p className="eyebrow">Thank you</p>
-        <h2>마음을 전해주세요</h2>
-        <p>축하의 마음과 참석 여부를 신랑 신부에게 전달할 수 있어요.</p>
-        <button type="button" className="share-button" onClick={() => setIsRsvpOpen(true)}>전달하기</button>
+        <p className="script-title">Rsvp</p>
+        <h2>참석 의사 전달</h2>
+        <p>신랑, 신부에게 참석의사를<br />미리 전달할 수 있어요.</p>
+        <button type="button" className="share-button" onClick={() => setIsRsvpOpen(true)}>
+          <span aria-hidden="true">➤</span>
+          전달하기
+        </button>
       </section>
 
       {isRsvpOpen && <RsvpModal onClose={() => setIsRsvpOpen(false)} />}
