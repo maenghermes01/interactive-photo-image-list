@@ -65,8 +65,8 @@ button { font: inherit; }
   position: absolute;
   left: 50%;
   top: 50%;
-  width: clamp(190px, 26vw, 430px);
-  height: clamp(420px, 82vh, 760px);
+  width: min(clamp(190px, 26vw, 430px), calc(82vh * 9 / 16));
+  aspect-ratio: 9 / 16;
   padding: 0;
   overflow: hidden;
   border: 0;
@@ -102,8 +102,7 @@ button { font: inherit; }
 }
 
 .vertical-panel--active {
-  width: clamp(260px, 32vw, 520px);
-  height: clamp(520px, 88vh, 820px);
+  width: min(clamp(260px, 32vw, 520px), calc(88vh * 9 / 16));
   box-shadow: 0 44px 120px rgba(0,0,0,.32), 0 0 0 1px rgba(255,255,255,.5);
 }
 
@@ -232,13 +231,11 @@ button { font: inherit; }
 
 @media (max-width: 700px) {
   .vertical-panel {
-    width: clamp(170px, 55vw, 270px);
-    height: clamp(360px, 76vh, 620px);
+    width: min(clamp(170px, 55vw, 270px), calc(76vh * 9 / 16));
   }
 
   .vertical-panel--active {
-    width: clamp(210px, 70vw, 330px);
-    height: clamp(430px, 82vh, 680px);
+    width: min(clamp(210px, 70vw, 330px), calc(82vh * 9 / 16));
   }
 }
 
